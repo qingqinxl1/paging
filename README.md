@@ -36,16 +36,26 @@ function buildHtml(data) {
 
 //创建分页实例
 var chinasoPage = new Paging({
-     callback: buildHtml, //列表渲染完成后的回调函数名，必填
-     totalPage: 15, //默认总页数，可不传，默认为10
-     url: '/data/search', //接口地址，必填
-     params: 'q=食药&t=event&sm=1&so=1&n=20', //请求参数
-     jsonTotalPageName: 'data.paramsVO.n', //返回数据中总页数的获取字段名，若不传，则默认加载最多10页数据
-     pageIndexName: 'pageNo', //当前页请求参数名，默认为pageNo
-     pageStart: 0, //第一页数据从0开始还是从1开始，默认从0开始
-     datatype: 'json', //数据请求类型
-     jsonpName: 'callback', //若请求类型为jsonp，默认请求为‘&callback=XXXXX’，传入参数将替换callback
-     jsonpCallbackName: '' //默认jquery随机生成，例如传入odata则请求为callback=odata，响应为odata({...})
+   //列表渲染完成后的回调函数名，必填
+   callback: buildHtml,
+   //默认总页数，可不传，默认为10
+   totalPage: 15,
+   //接口地址，必填
+   url: '/data/search',
+   //请求参数
+   params: 'q=食药&t=event&sm=1&so=1&n=20',
+   //返回数据中总页数的获取字段名，若不传，则默认加载最多10页数据
+   jsonTotalPageName: 'data.paramsVO.n',
+   //当前页请求参数名，默认为pageNo
+   pageIndexName: 'pageNo',
+   //第一页数据从0开始还是从1开始，默认从0开始
+   pageStart: 0,
+   //数据请求类型
+   datatype: 'json',
+   //若请求类型为jsonp，默认请求为‘&callback=XXXXX’，传入参数将替换callback
+   jsonpName: 'callback',
+   //默认jquery随机生成，例如传入odata则请求为callback=odata，响应为odata({...})
+   jsonpCallbackName: ''
  });
 
 chinasoPage.init();
