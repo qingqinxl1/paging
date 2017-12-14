@@ -1,21 +1,7 @@
 /**
  * 公共分页组件，支持页面中有多个分页
  * @param {object} options 传入的参数，具体说明见defaults
- * @example
-    var Paging = new Paging({
-        callback: buildHtml, //列表渲染完成后的回调函数名，必填
-        totalPage: 10, //默认总页数，可不传，默认为10
-        url: '/data/search', //接口地址，必填
-        params: 't=event&sm=0&so=1&p=0&n=1', //请求参数
-        pageIndexName: 'p', //当前页请求参数名，默认为pageNo
-        pageStart: 0, //第一页数据从0开始还是从1开始，默认从0开始
-        datatype: 'json', //数据请求类型
-        jsonTotalPageName: '' //返回数据中总页数的获取字段名，若不传，则默认加载最多10页数据
-    });
-    Paging.init();
- */
-/**
- * Cookie 操作工具类，包含获取、增加、删除cookie、cookie中文字符解码功能
+ * @example /demo/paging.html
  */
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -31,159 +17,222 @@
 }(this, function($) {
   var Paging = function(options) {
     this.defaults = {
-      callback: null, //列表渲染完成后的回调函数名
-      totalPage: 10, //总页数，默认为10页
-      url: '', //接口地址
-      params: '', //请求参数
-      jsonTotalPageName: '', //返回数据中总页数的获取字段名，若不传，则默认加载最多10页数据
-      pageIndexName: 'pageNo', //当前页请求参数名，默认为pageNo
-      pageStart: 0, //第一页数据从0开始还是从1开始，默认从0开始
-      datatype: 'json', //数据请求类型
-      jsonpName: 'callback', //jsonp回调参数名
-      jsonpCallbackName: '' //jsonp回调参数值，即响应回来的jsonp函数名
+      //列表渲染完成后的回调函数名
+      callback: null,
+      //总页数，默认为10页
+      totalPage: 10,
+      //接口地址
+      url: '',
+      //请求参数
+      params: '',
+      //返回数据中总页数的获取字段名，若不传，则默认加载最多10页数据
+      jsonTotalPageName: '',
+      //当前页请求参数名，默认为pageNo
+      pageIndexName: 'pageNo',
+      //第一页数据从0开始还是从1开始，默认从0开始
+      pageStart: 0,
+      //数据请求类型
+      datatype: 'json',
+      //jsonp回调参数名
+      jsonpName: 'callback',
+      //jsonp回调参数值，即响应回来的jsonp函数名
+      jsonpCallbackName: '',
+      //分页页码放置的外层容器ID
+      paginationID: 'pagination',
+      //数据渲染成功后是否跳转到页面顶部
+      isGoTop: true
     };
     this.defaults = $.extend(this.defaults, options);
+  };
 
-    this.sendAjax = function(pageNo) {
-      var T = this;
-      var params = T.defaults.params;
-      var newPageNo = T.defaults.pageStart === 0 ? pageNo - 1 : pageNo;
+  Paging.prototype.sendAjax = function(pageNo) {
+    var T = this;
+    var defs = T.defaults;
+    var params = defs.params;
+    var newPageNo = defs.pageStart === 0 ? pageNo - 1 : pageNo;
 
-      if (newPageNo !== undefined) {
-        params = params + '&' + T.defaults.pageIndexName + '=' + newPageNo;
-      }
+    if (newPageNo !== undefined) {
+      params = params + '&' + defs.pageIndexName + '=' + newPageNo;
+    }
 
-      var sendOpt = {
-        type: 'get',
-        url: T.defaults.url,
-        data: params,
-        dataType: T.defaults.datatype || 'json'
-      };
-      if ('jsonp' === T.defaults.datatype) {
-        sendOpt.jsonp = T.defaults.jsonpName;
-        if (T.defaults.jsonpCallbackName) {
-          sendOpt.jsonpCallback = T.defaults.jsonpCallbackName;
-        }
-      }
-      $.ajax(sendOpt).done(function(data) {
-        if (T.defaults.jsonTotalPageName) {
-          T.defaults.totalPage = eval(T.defaults.jsonTotalPageName);
-        }
-        T.setPage(document.getElementById('pagination'), T.defaults.totalPage, pageNo);
-
-        if (typeof T.defaults.callback === "function") {
-          T.defaults.callback(data);
-        }
-      });
+    var sendOpt = {
+      type: 'get',
+      url: defs.url,
+      data: params,
+      dataType: defs.datatype || 'json'
     };
 
-    //container为分页页码放置的外层div，count为总页数，pageindex为当前页码
-    this.setPage = function(container, count, pageindex) {
-      if (!container) return false;
-      var a = [],
-        prevPage = pageindex - 1, //上一页
-        nextPage = pageindex + 1,
-        T = this;
+    // 若请求类型为jsonp类型，则设置jsonp相关属性
+    if ('jsonp' === defs.datatype) {
+      sendOpt.jsonp = defs.jsonpName;
+      if (defs.jsonpCallbackName) {
+        sendOpt.jsonpCallback = defs.jsonpCallbackName;
+      }
+    }
+    $.ajax(sendOpt).done(function(data) {
+      T.buildHtml(data, pageNo);
+    });
+  };
 
-      if (count > 1) {
-        //总页数少于10 全部显示,大于10 显示前3 后3 中间3 其余....
-        if (pageindex == 1) {
-          a[a.length] = "<span class=\"page_pre\">上一页</span>";
+  /**
+   * 列表数据结构生成，仅负责将数据传递给构造函数中的回调函数，不做代码拼接
+   * @param  {Object} data ajax请求成功后返回来的数据
+   * @param  {Number} pageNo 当前页码
+   */
+  Paging.prototype.buildHtml = function(data, pageNo) {
+    var T = this,
+      defs = T.defaults;
+
+    if (defs.jsonTotalPageName) {
+      defs.totalPage = eval(defs.jsonTotalPageName);
+    }
+
+    //分页页码生成
+    T.setPage($('#' + defs.paginationID), defs.totalPage, pageNo);
+
+    if (typeof defs.callback === "function") {
+      defs.callback(data);
+    }
+  };
+
+  /**
+   * 分页页码生成
+   * @param  {jQuery Dom} container 分页页码放置的外层div
+   * @param  {Number} count 总页数
+   * @param  {Number} pageindex 当前页码
+   */
+  Paging.prototype.setPage = function(container, count, pageindex) {
+    if (!container) return false;
+    var a = [],
+      prevPage = pageindex - 1, //上一页
+      nextPage = pageindex + 1,
+      T = this;
+
+    if (count > 1) {
+      //总页数少于10 全部显示,大于10 显示前3 后3 中间3 其余....
+      if (pageindex == 1) {
+        a[a.length] = "<span class=\"page_pre\">上一页</span>";
+      } else {
+        a[a.length] = "<span class=\"page_pre\"><a href=\"\">上一页</a></span>";
+      }
+
+      function setPageList() {
+        if (pageindex == i) {
+          a[a.length] = "<span>" + i + "</span>";
         } else {
-          a[a.length] = "<span class=\"page_pre\"><a href=\"\">上一页</a></span>";
+          a[a.length] = "<span><a href=\"\">" + i + "</a></span>";
         }
-
-        function setPageList() {
-          if (pageindex == i) {
-            a[a.length] = "<span>" + i + "</span>";
-          } else {
-            a[a.length] = "<span><a href=\"\">" + i + "</a></span>";
-          }
+      }
+      //总页数小于10
+      if (count <= 10) {
+        //列出所有的页码
+        for (var i = 1; i <= count; i++) {
+          setPageList();
         }
-        //总页数小于10
-        if (count <= 10) {
-          for (var i = 1; i <= count; i++) {
+      } else { //总页数大于10页
+        if (pageindex <= 4) {
+          //当前页码小于等于4时，展示前5的页码，然后...然后展示最后一页页码，例如总共11页当前为第3页，展示如下：
+          //1 2 3 4 5 ... 11
+          for (var i = 1; i <= 5; i++) {
             setPageList();
           }
-        } else { //总页数大于10页
-          if (pageindex <= 4) {
-            for (var i = 1; i <= 5; i++) {
-              setPageList();
-            }
-            a[a.length] = "...<span><a href=\"\">" + count + "</a></span>";
-          } else if (pageindex >= count - 3) {
-            a[a.length] = "<span><a href=\"\">1</a></span>...";
-            for (var i = count - 4; i <= count; i++) {
-              setPageList();
-            }
-          } else { //当前页在中间部分
-            a[a.length] = "<span><a href=\"\">1</a></span>...";
-            for (var i = pageindex - 2; i <= pageindex + 2; i++) {
-              setPageList();
-            }
-            a[a.length] = "...<span><a href=\"\">" + count + "</a></span>";
+          a[a.length] = "...<span><a href=\"\">" + count + "</a></span>";
+        } else if (pageindex >= count - 3) {
+          //当前页码大于等于总页码-3时，展示第一页，然后...然后展示最后5页，如总共11页当前第9页，展示如下：
+          //1 ... 7 8 9 10 11
+          a[a.length] = "<span><a href=\"\">1</a></span>...";
+          for (var i = count - 4; i <= count; i++) {
+            setPageList();
           }
-        }
-
-        if (pageindex == count) {
-          a[a.length] = "<span class=\"page_next\">下一页</span>";
         } else {
-          a[a.length] = "<span class=\"page_next\"><a href=\"\">下一页</a></span>";
+          //当前页在中间部分(即非前4页，也非后4页)，展示第一页，然后...然后展示当前页码及它的前后两个页码，
+          //再然后...后展示最后一页页码，如总共11页当前第6页，展示如下：
+          //1 ... 4 5 6 7 8 ... 11
+          a[a.length] = "<span><a href=\"\">1</a></span>...";
+          for (var i = pageindex - 2; i <= pageindex + 2; i++) {
+            setPageList();
+          }
+          a[a.length] = "...<span><a href=\"\">" + count + "</a></span>";
         }
-        container.innerHTML = a.join("");
-        //事件点击
-        var pageClick = function() {
-          var oAlink = container.getElementsByTagName("span");
-          var inx = pageindex; //初始的页码
-          oAlink[0].onclick = function() { //点击上一页
-            if (inx == 1) {
-              return false;
-            }
-            inx--;
-            T.sendAjax(inx);
-          };
-          for (var i = 1; i < oAlink.length - 1; i++) { //点击页码
-            oAlink[i].onclick = function() {
-              var childA = this.getElementsByTagName('a');
-              if (childA.length) {
-                inx = parseInt(childA[0].innerHTML);
-                T.sendAjax(inx);
-              } else {
-                return false;
-              }
-            };
-          }
-          oAlink[oAlink.length - 1].onclick = function() { //点击下一页
-            if (inx == count) {
-              return false;
-            }
-            inx++;
-            T.sendAjax(inx);
-          };
-          $(document).scrollTop(0);
-
-          //处理ie6下点击span里头的a标签无反应的问题.
-          //处理办法：将之前a里头的javascript:void(0)删掉，使用return false来阻止a的默认跳转事件，点击a后事件正常冒泡到span.
-          var hrefs = container.getElementsByTagName('a');
-          for (var j = 0, jLen = hrefs.length; j < jLen; j++) {
-            hrefs[j].onclick = function(e) {
-              // e.preventDefault();
-              return false;
-            }
-          }
-        }();
-        container.style.display = 'block';
-      } else {
-        container.style.display = 'none';
       }
-    };
+
+      if (pageindex == count) {
+        a[a.length] = "<span class=\"page_next\">下一页</span>";
+      } else {
+        a[a.length] = "<span class=\"page_next\"><a href=\"\">下一页</a></span>";
+      }
+      container[0].innerHTML = a.join("");
+      container.show();
+      T.bindPageClick(container, pageindex);
+    } else {
+      container.hide();
+    }
   };
+
+  /**
+   * 分页页码点击事件
+   * @param  {jQuery Dom} container 分页页码放置的外层div
+   * @param  {Number} pageindex 当前页码
+   */
+  Paging.prototype.bindPageClick = function(container, pageindex) {
+    var T = this;
+    var oAlink = container.find("span");
+    var inx = pageindex; //初始的页码
+
+    //点击上一页
+    oAlink.eq(0).on('click', function() {
+      if (inx == 1) {
+        return false;
+      }
+      inx--;
+      T.sendAjax(inx);
+    });
+    for (var i = 1; i < oAlink.length - 1; i++) { //点击页码
+      oAlink.eq(i).on('click', function() {
+        var childA = $(this).find('a');
+        if (childA.length) {
+          inx = parseInt(childA.text());
+          T.sendAjax(inx);
+        } else {
+          return false;
+        }
+      })
+    }
+    oAlink.eq(oAlink.length - 1).on('click', function() { //点击下一页
+      if (inx == count) {
+        return false;
+      }
+      inx++;
+      T.sendAjax(inx);
+    });
+
+    //页码生成完毕后是否跳转到页面顶部
+    if (T.defaults.isGoTop) {
+      $(document).scrollTop(0);
+    }
+
+
+    //处理ie6下点击span里头的a标签无反应的问题.
+    //处理办法：将之前a里头的javascript:void(0)删掉，使用return false来阻止a的默认跳转事件，点击a后事件正常冒泡到span.
+    var hrefs = container.find('a');
+    hrefs.on('click', function(e) {
+      if (e.preventDefault) {
+        e.preventDefault();
+      } else {
+        e.returnValue = false;
+      }
+    });
+  }
 
   Paging.prototype.init = function() {
     var T = this;
     T.sendAjax(1);
   };
 
+  /**
+   * 更新参数
+   * @param  {String} params 参数内容
+   */
   Paging.prototype.updateParams = function(params) {
     var T = this;
     T.defaults.params = params;

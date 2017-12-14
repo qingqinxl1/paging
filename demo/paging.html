@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>分页demo</title>
+    <link rel="stylesheet" href="demo.css">
+  </head>
+  <body>
+    <div class="list">
+    </div>
+    <div class="page_bar" id="pagination">
+    </div>
+
+    <script type="text/javascript" src="http://n2.static.pg0.cn/www/common/base/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="../dist/index.js"></script>
+    <script type="text/javascript">
+      $(function(){
+        var URL = 'http://rollpc.mlzhongguo.net/newsQuery/query/getNewsList.htm?subChannel=&tableName=beauchina&tableId=6&type=abstract&pageSize=20&sourceType=0,1,2,3,4,5&after=&fields=TitleEN,SourceUrl,TitleCN,PreviewImage,SourceName';
+        var params = '&channel=1012';
+        //创建回调函
+        var buildHtml = function(data) {
+          var $content = $('.list');
+          var list = data.results;
+          var lenth = list.length;
+          var str = '';
+          var iconName = 'ico_music';
+
+          for (var i = 0; i < lenth; i++) {
+            var cur = list[i];
+            var delImgURL = cur.PreviewImage + '?enable=&w=100&h=100&cut=';
+
+            if (cur.TitleEN) {
+              iconName = 'icon_video';
+            }
+            str += '<li><a href="' + cur.SourceUrl + '" target="_blank" title="' + cur.TitleCN + '">' +
+              '<div class="image_list_con_img"><img src="' + delImgURL + '" alt="' + cur.TitleCN + '"></div>' +
+              '<p>' + cur.TitleCN + '</p><i class="' + iconName + '"></i></a></li>';
+          }
+          $content.html(str);
+        }
+
+        //创建分页实例
+        var chinasoPage = new Paging({
+          callback: buildHtml, //列表渲染完成后的回调函数名，必填
+          totalPage: 15, //默认总页数，可不传，默认为10
+          url: URL, //接口地址，必填
+          params: params, //请求参数
+          jsonTotalPageName: 'data.totalPage', //返回数据中总页数的获取字段名，若不传，则默认加载最多10页数据
+          pageIndexName: 'pageNo', //当前页请求参数名，默认为pageNo
+          pageStart: 0, //第一页数据从0开始还是从1开始，默认从0开始
+          datatype: 'jsonp', //数据请求类型
+          jsonpName: 'jsonpcallback'
+        });
+
+        chinasoPage.init();
+      })
+    </script>
+  </body>
+</html>
