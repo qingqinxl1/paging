@@ -1,5 +1,10 @@
+ul li{list-style: none;}
 a{text-decoration: none;}
-.page_bar { text-align:center; margin: 0 auto; padding:20px 0; }
+.list{width:960px;height:auto;margin:0 auto;}
+.list ul li{ float: left;margin:10px;}
+.list ul li a{ font-size: 14px;color:#666;text-align: center;}
+.list ul li a:hover{color:#e00;}
+.page_bar { text-align:center; margin: 0 auto; padding:20px 0;clear: both;}
 .page_bar span { margin: 5px;padding: 5px;color: #ccc;border: 1px solid #ccc;padding: 5px 15px; cursor:pointer}
 .page_bar a { display: inline-block; height: 30px; line-height: 30px; text-align: center; font-family: "Microsoft YaHei"; font-size: 14px; color: #777; }
 .page_bar .on { border: 1px solid #f1f1f1; color: #222; }

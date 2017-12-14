@@ -7,6 +7,9 @@
   </head>
   <body>
     <div class="list">
+      <ul>
+
+      </ul>
     </div>
     <div class="page_bar" id="pagination">
     </div>
@@ -16,10 +19,10 @@
     <script type="text/javascript">
       $(function(){
         var URL = 'http://rollpc.mlzhongguo.net/newsQuery/query/getNewsList.htm?subChannel=&tableName=beauchina&tableId=6&type=abstract&pageSize=20&sourceType=0,1,2,3,4,5&after=&fields=TitleEN,SourceUrl,TitleCN,PreviewImage,SourceName';
-        var params = '&channel=1012';
+        var params = 'channel=1012';
         //创建回调函
         var buildHtml = function(data) {
-          var $content = $('.list');
+          var $content = $('.list ul');
           var list = data.results;
           var lenth = list.length;
           var str = '';
