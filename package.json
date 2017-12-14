@@ -1,6 +1,6 @@
 {
   "name": "@cnpm/paging",
-  "version": "1.1.4",
+  "version": "1.2.4",
   "description": "分页组件",
   "main": "index.js",
   "scripts": {
