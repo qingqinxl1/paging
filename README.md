@@ -31,33 +31,44 @@ require(['@cnpm/paging'], function(Paging){
 ```
 //创建回调函数
 function buildHtml(data) {
-  console.log(data);    
+  console.log(data);
 }
 
 //创建分页实例
 var chinasoPage = new Paging({
   //列表渲染完成后的回调函数名，必填
   callback: null,
+
   //总页数，默认为10页
   totalPage: 10,
+
   //接口地址，必填
   url: '',
+
   //请求参数
   params: '',
+
   //返回数据中总页数的获取字段名，若不传，则默认加载最多10页数据
   jsonTotalPageName: '',
+
   //当前页请求参数名，默认为pageNo
   pageIndexName: 'pageNo',
+
   //第一页数据从0开始还是从1开始，默认从0开始
   pageStart: 0,
+
   //数据请求类型
   datatype: 'json',
+
   //jsonp回调参数名
   jsonpName: 'callback',
+
   //jsonp回调参数值，即响应回来的jsonp函数名
   jsonpCallbackName: '',
+
   //分页页码放置的外层容器ID
   paginationID: 'pagination',
+
   //数据渲染成功后是否跳转到页面顶部
   isGoTop: true
  });
