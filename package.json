@@ -1,10 +1,11 @@
 {
   "name": "@cnpm/paging",
-  "version": "1.2.4",
+  "version": "2.0.1",
   "description": "分页组件",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compress": "uglifyjs ./src/index.js -m -c -o dist/paging.js",
+    "cleancss": "node ./cleancss.js"
   },
   "keywords": [
     "分页"
@@ -14,5 +15,8 @@
   "svn": "http://svn.chinaso365.com/svn/wljsb/f_fe/frontpackages/paging",
   "dependencies": {
     "jquery": "^3.2.1"
+  },
+  "devDependencies": {
+    "clean-css": "^4.1.9"
   }
 }

@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>分页demo</title>
     <link rel="stylesheet" href="demo.css">
+    <link rel="stylesheet" href="../dist/paging.css">
   </head>
   <body>
     <div class="list">
@@ -15,11 +16,11 @@
     </div>
 
     <script type="text/javascript" src="http://n2.static.pg0.cn/www/common/base/js/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="../dist/index.js"></script>
+    <script type="text/javascript" src="../dist/paging.js"></script>
     <script type="text/javascript">
       $(function(){
-        var URL = 'http://rollpc.mlzhongguo.net/newsQuery/query/getNewsList.htm?subChannel=&tableName=beauchina&tableId=6&type=abstract&pageSize=20&sourceType=0,1,2,3,4,5&after=&fields=TitleEN,SourceUrl,TitleCN,PreviewImage,SourceName';
-        var params = 'channel=1012';
+        var URL = 'http://rollpc.news.chinaso.com/newsQuery/query/getNewsList.htm?subChannel=&tableName=&tableId=&type=abstract&pageSize=20&sourceType=0,1,2,3,4,5&after=&fields=TitleEN,SourceUrl,TitleCN,PreviewImage,SourceName';
+        var params = 'channel=3297556';
         //创建回调函
         var buildHtml = function(data) {
           var $content = $('.list ul');
@@ -48,7 +49,11 @@
           totalPage: 15, //默认总页数，可不传，默认为10
           url: URL, //接口地址，必填
           params: params, //请求参数
-          jsonTotalPageName: 'data.totalPage', //返回数据中总页数的获取字段名，若不传，则默认加载最多10页数据
+          // jsonTotalPage: 'totalPage', //总页数字段名，可以是字符串类型
+          // 总页数字段，也可以是一个回调函数
+          jsonTotalPage: function(data){
+            return Math.floor(data.totalCount / data.pageSize);
+          },
           pageIndexName: 'pageNo', //当前页请求参数名，默认为pageNo
           pageStart: 0, //第一页数据从0开始还是从1开始，默认从0开始
           datatype: 'jsonp', //数据请求类型

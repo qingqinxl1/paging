@@ -48,8 +48,8 @@ var chinasoPage = new Paging({
   //请求参数
   params: '',
 
-  //返回数据中总页数的获取字段名，若不传，则默认加载最多10页数据
-  jsonTotalPageName: '',
+  //返回数据中总页数字段名或者计算总页数函数，若不传，则默认加载最多10页数据
+  jsonTotalPage: '',
 
   //当前页请求参数名，默认为pageNo
   pageIndexName: 'pageNo',
@@ -64,7 +64,7 @@ var chinasoPage = new Paging({
   jsonpName: 'callback',
 
   //jsonp回调参数值，即响应回来的jsonp函数名
-  jsonpCallbackName: '',
+  jsonpCallbackName: 'totalPage',
 
   //分页页码放置的外层容器ID
   paginationID: 'pagination',
@@ -75,6 +75,14 @@ var chinasoPage = new Paging({
 
 chinasoPage.init();
 ```
+
+### 参数调用说明
+参数名 | 参数调用例子
+--- | ---
+jsonTotalPage | 可以是字符串类型，如：totalPage 或者函数类型
+- | jsonTotalPage: function(data){
+- | return Math.floor(data.totalCount / data.pageSize);
+- | }
 
 ## 更新参数
 `chinasoPage.updateParams(params);`
