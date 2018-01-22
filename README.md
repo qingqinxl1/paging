@@ -6,19 +6,17 @@
 
 ### ES6
 
-```
-import Paging from '@cnpm/paging';
-```
+`import Paging from '@cnpm/paging';`
 
 ### 普通引入方式
 
 *引入paging/index.js之前需要引入jquery*
 
-`<script type="text/javascript" src="http://n3.static.pg0.cn/fp/paging/dist/index.js">`
+`<script type="text/javascript" src="http://n3.static.pg0.cn/fp/paging/dist/paging.js">`
 
 
 ### AMD
-```
+```javascript
 require(['@cnpm/paging'], function(Paging){
 
   //cookie方法操作
@@ -28,7 +26,7 @@ require(['@cnpm/paging'], function(Paging){
 
 ## 调用方式
 
-```
+```javascript
 //创建回调函数
 function buildHtml(data) {
   console.log(data);
@@ -63,8 +61,8 @@ var chinasoPage = new Paging({
   //jsonp回调参数名
   jsonpName: 'callback',
 
-  //jsonp回调参数值，即响应回来的jsonp函数名
-  jsonpCallbackName: 'totalPage',
+  //jsonp回调参数值，即响应回来的jsonp函数名，不传的话默认为jquery自动生成
+  jsonpCallbackName: '',
 
   //分页页码放置的外层容器ID
   paginationID: 'pagination',
@@ -85,4 +83,7 @@ jsonTotalPage | 可以是字符串类型，如：totalPage 或者函数类型
 - | }
 
 ## 更新参数
-`chinasoPage.updateParams(params);`
+```javascript
+//params为&符号连接的字符串，如：&pageno=1&channel=XXX
+chinasoPage.updateParams(params);
+```
