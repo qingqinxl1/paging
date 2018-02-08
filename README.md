@@ -2,6 +2,9 @@
 
 ### 依赖 jQuery 1.9.1+
 
+### 参与开发请注意js压缩使用uglifyjs，建议全局安装uglifyjs
+`npm install uglify-js -g`
+
 ## 引入方式
 
 ### ES6
